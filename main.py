@@ -1,4 +1,3 @@
-
 def main(features_path, prediction_results_path, model_path, load_model):
     """
     Docstring for main
