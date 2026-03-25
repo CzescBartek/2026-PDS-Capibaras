@@ -42,9 +42,9 @@ def asymmetry(mask):
 
     # Calculate asymmetry score
 
-    # IF MASK IS EMPTY ( ASK IF IT SHOULD BE NaN OR 0 )
+
     if total_pxls == 0:
         return np.nan
     asymmetry_score = (hori_asymmetry_pxls + vert_asymmetry_pxls) / (total_pxls * 2)
 
-    return round(asymmetry_score, 4)
+    return round(min(asymmetry_score, 1.0), 4)

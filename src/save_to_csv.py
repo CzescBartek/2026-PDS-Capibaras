@@ -18,6 +18,7 @@ def save_feature(feature):
         im = plt.imread(file_im)
         mask = plt.imread(file_mask)
         features.append(feature(mask))
+        print(file_im)
     return features
 
 

@@ -1,3 +1,4 @@
 data/masks/
 data/imgs/
-data/metadata.csv
+src/__pycache__
+src/TEST_AUTOMATC_HAIR.ipynb
