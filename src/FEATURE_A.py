@@ -47,4 +47,4 @@ def asymmetry(mask):
         return np.nan
     asymmetry_score = (hori_asymmetry_pxls + vert_asymmetry_pxls) / (total_pxls * 2)
 
-    return round(min(asymmetry_score, 1.0), 4)
+    return round(asymmetry_score, 4)
