@@ -48,3 +48,79 @@ def asymmetry(mask):
     asymmetry_score = (hori_asymmetry_pxls + vert_asymmetry_pxls) / (total_pxls * 2)
 
     return round(asymmetry_score, 4)
+
+
+
+
+def rotation_asymmetry(mask, n: int):
+    '''Rotate mask n times and calculate asymmetry score for each iteration.
+    Rotates n times between 0 and 90 degrees, as 90 degree rotations do not change the
+    asymmetry score, i.e., a 30 degree rotation is the same as a 120 degree rotation.
+
+    Args:
+        mask (numpy.ndarray): input mask
+        n (int): amount of rotations
+
+    Returns:
+        asymmetry_scores (dict): dict of asymmetry scores calculated from each rotation.
+    '''
+    asymmetry_scores = {}
+
+    for i in range(n):
+
+        degrees = 90 * i / n
+
+        rotated_mask = rotate(mask, degrees)
+        cutted_mask = cut_mask(rotated_mask)
+
+        asymmetry_scores[degrees] = asymmetry(cutted_mask)
+
+    return asymmetry_scores
+
+def mean_asymmetry(mask, rotations = 30):
+    '''Return mean asymmetry score from mask.
+    Optional argument (defualt 30) rotations decides amount of rotations in asymmetry calculation
+
+    Args:
+        mask (numpy.ndarray): mask to compute asymmetry score for
+        rotations (int, optional): amount of rotations (default 30)
+
+    Returns:
+        mean_score (float): mean asymmetry score.
+    '''
+    asymmetry_scores = rotation_asymmetry(mask, rotations)
+    mean_score = sum(asymmetry_scores.values()) / len(asymmetry_scores)
+
+    return mean_score
+
+def best_asymmetry(mask, rotations = 30):
+    '''Return best (lowest) asymmetry score from mask.
+    Optional argument (defualt 30) rotations decides amount of rotations in asymmetry calculation
+
+    Args:
+        mask (numpy.ndarray): mask to compute asymmetry score for
+        rotations (int, optional): amount of rotations (defualt 30)
+
+    Returns:
+        best_score (float): best asymmetry score.
+    '''
+    asymmetry_scores = rotation_asymmetry(mask, rotations)
+    best_score = min(asymmetry_scores.values())
+
+    return best_score
+
+def worst_asymmetry(mask, rotations = 30):
+    '''Return worst (highest) asymmetry score from mask.
+    Optional argument (defualt 30) rotations decides amount of rotations in asymmetry calculation
+
+    Args:
+        mask (numpy.ndarray): mask to compute asymmetry score for
+        rotations (int, optional): amount of rotations (defualt 30)
+
+    Returns:
+        worst_score (float): worst asymmetry score.
+    '''
+    asymmetry_scores = rotation_asymmetry(mask, rotations)
+    worst_score = max(asymmetry_scores.values())
+
+    return worst_score
