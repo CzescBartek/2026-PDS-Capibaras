@@ -19,7 +19,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-data_path = 'C:/Users/nwptd/OneDrive/Desktop/DSdata/'
+data_path = '../data/'
 
 def load_image_and_mask(image_id, data_path=data_path):
     '''
@@ -363,10 +363,6 @@ def get_relative_rgb_means(image, slic_segments):
 def extract_features(row, data_path=data_path):
     img_id = row["img_id"]
     im, mask = load_image_and_mask(img_id, data_path)
-
-    if np.sum(mask) == 0:
-        return {"diagnostic": row["diagnostic"]}
-
     slic_segments = slic_segmentation(im, mask)
 
     red_var, green_var, blue_var = rgb_var(im, slic_segments)
@@ -384,19 +380,16 @@ def extract_features(row, data_path=data_path):
 
     return feats
 
-df = pd.read_csv("../data/metadata.csv")
-df = df.head(100)
-
 # Apply feature extraction to each row
-features_list = []
+# features_list = []
 
-for i, (_, row) in enumerate(df.iterrows()):
-    print(f"Processing {i+1}/{len(df)}: {row['img_id']}")
-    feats = extract_features(row)
-    features_list.append(feats)
+# for i, (_, row) in enumerate(df.iterrows()):
+#     print(f"Processing {i+1}/{len(df)}: {row['img_id']}")
+#     feats = extract_features(row)
+#     features_list.append(feats)
 
-# Convert to DataFrame
-features_df = pd.DataFrame(features_list)
+# # Convert to DataFrame
+# features_df = pd.DataFrame(features_list)
 
 # Save results
 #features_df.to_csv("../data/features.csv", index=False)
