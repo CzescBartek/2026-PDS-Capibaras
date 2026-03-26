@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from math import ceil, floor, pi
 from FEATURE_A import asymmetry, midpointGroup9
 import os
-from FEATURE_COLOR import extract_features, get_relative_rgb_means,color_dominance,hsv_var,rgb_var,get_hsv_means,get_rgb_means,load_image_and_mask,cut_im_by_mask,slic_segmentation,get_com_col,get_multicolor_rate
+from FEATURE_COLOR import slic_segmentation, get_rgb_means, load_image_and_mask
 import cv2
 import numpy as np
 from math import sqrt, floor, ceil, nan, pi
@@ -42,14 +42,29 @@ else:
 
     df_features = pd.DataFrame({'img_id': image_id})
 
-
+r = []
+g = []
+b = []
 features = []
 for files in image_id:
     im, mask = load_image_and_mask(files, data_path=data_path)
     features.append(asymmetry(mask))
+    means = get_rgb_means(im, mask)
+    if means is not None and len(means) > 0:
+        colors = np.mean(means, axis=0)
+    else:
+        colors = np.array([0, 0, 0])
+
+    
+    r.append(colors[0])
+    g.append(colors[1])
+    b.append(colors[2])
     print(im)
 
 df_features['FEATURE_A'] = features
+df_features['FEATURE_B_R'] = r
+df_features['FEATURE_B_G'] = g
+df_features['FEATURE_B_B'] = b
 # HERE COLORS BUT I STILL KINDA DONT KNOW
 
 

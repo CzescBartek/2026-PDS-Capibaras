@@ -2,3 +2,5 @@ data/masks/
 data/imgs/
 src/__pycache__
 src/TEST_AUTOMATIC_HAIR.ipynb
+src/REMOVE_PENMARK.ipynb
+src/masking.ipynb
