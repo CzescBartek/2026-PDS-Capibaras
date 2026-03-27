@@ -5,7 +5,7 @@ from math import ceil, floor, pi
 from FEATURE_A import asymmetry, midpointGroup9
 import os
 from FEATURE_COLOR import slic_segmentation, get_rgb_means, load_image_and_mask
-from FEATURE_BORDER import compactness_score, convexity_score, mean_asymmetry
+from FEATURE_BORDER import compactness_score, convexity_score
 import cv2
 import numpy as np
 from math import sqrt, floor, ceil, nan, pi
@@ -44,7 +44,6 @@ b = []
 
 compactness = []
 convexity = []
-asymmetry_scores = []
 cancerous = []
 
 features = []
@@ -67,8 +66,6 @@ for files in image_id:
     #Border Features Here 
     compactness.append(compactness_score(mask))
     convexity.append(convexity_score(mask))
-    asymmetry_scores.append(mean_asymmetry(mask))
-
     r.append(colors[0])
     g.append(colors[1])
     b.append(colors[2])
@@ -82,7 +79,6 @@ df_features['FEATURE_B_B'] = b
 #Here border too
 df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
 df_features['FEATURE_BORDER_CONVEXITY'] = convexity
-df_features['FEATURE_BORDER_ASYMMETRY'] = asymmetry_scores
 #Labels
 df_features['Cancerous'] = cancerous
 
