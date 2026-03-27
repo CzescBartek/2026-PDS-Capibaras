@@ -5,6 +5,7 @@ from math import ceil, floor, pi
 from FEATURE_A import asymmetry, midpointGroup9
 import os
 from FEATURE_COLOR import slic_segmentation, get_rgb_means, load_image_and_mask
+from FEATURE_BORDER import compactness_score, convexity_score, mean_asymmetry
 import cv2
 import numpy as np
 from math import sqrt, floor, ceil, nan, pi
@@ -40,6 +41,11 @@ else:
 r = []
 g = []
 b = []
+
+compactness = []
+convexity = []
+asymmetry_scores = []
+
 features = []
 for files in image_id:
     im, mask = load_image_and_mask(files, data_path=data_path)
@@ -50,16 +56,26 @@ for files in image_id:
     else:
         colors = np.array([0, 0, 0])
 
-    
+    #Border Features Here 
+    compactness.append(compactness_score(mask))
+    convexity.append(convexity_score(mask))
+    asymmetry_scores.append(mean_asymmetry(mask))
+
     r.append(colors[0])
     g.append(colors[1])
     b.append(colors[2])
     print(im)
 
+
 df_features['FEATURE_A'] = features
 df_features['FEATURE_B_R'] = r
 df_features['FEATURE_B_G'] = g
 df_features['FEATURE_B_B'] = b
+#Here border too
+df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
+df_features['FEATURE_BORDER_CONVEXITY'] = convexity
+df_features['FEATURE_BORDER_ASYMMETRY'] = asymmetry_scores
+
 # HERE COLORS BUT I STILL KINDA DONT KNOW
 
 
