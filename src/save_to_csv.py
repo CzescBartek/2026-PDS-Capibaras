@@ -45,9 +45,17 @@ b = []
 compactness = []
 convexity = []
 asymmetry_scores = []
+cancerous = []
 
 features = []
 for files in image_id:
+    value = df.loc[df['img_id'] == files, 'diagnostic'].values
+    
+    if len(value) > 0 and value[0] in ['BCC', 'MEL', 'SCC']:
+        cancerous.append(1)
+    else:
+        cancerous.append(0)
+
     im, mask = load_image_and_mask(files, data_path=data_path)
     features.append(asymmetry(mask))
     means = get_rgb_means(im, mask)
@@ -75,6 +83,8 @@ df_features['FEATURE_B_B'] = b
 df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
 df_features['FEATURE_BORDER_CONVEXITY'] = convexity
 df_features['FEATURE_BORDER_ASYMMETRY'] = asymmetry_scores
+#Labels
+df_features['Cancerous'] = cancerous
 
 # HERE COLORS BUT I STILL KINDA DONT KNOW
 
