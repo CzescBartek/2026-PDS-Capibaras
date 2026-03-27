@@ -39,37 +39,6 @@ def cut_mask(mask):
     return cut_mask_
 
 
-def asymmetry(mask):
-    '''Calculate asymmetry score between 0 and 1 from vertical and horizontal axis.
-    0 = complete symmetry, 1 = complete asymmetry.
-
-    Args:
-        mask (numpy.ndarray): input mask
-
-    Returns:
-        asymmetry_score (float): Float between 0 and 1 indicating level of asymmetry.
-    '''
-    row_mid = mask.shape[0] / 2
-    col_mid = mask.shape[1] / 2
-
-    upper_half = mask[:ceil(row_mid), :]
-    lower_half = mask[floor(row_mid):, :]
-    left_half  = mask[:, :ceil(col_mid)]
-    right_half = mask[:, floor(col_mid):]
-
-    flipped_lower = np.flip(lower_half, axis=0)
-    flipped_right = np.flip(right_half, axis=1)
-
-    hori_xor_area = np.logical_xor(upper_half, flipped_lower)
-    vert_xor_area = np.logical_xor(left_half, flipped_right)
-
-    total_pxls         = np.sum(mask)
-    hori_asymmetry_pxls = np.sum(hori_xor_area)
-    vert_asymmetry_pxls = np.sum(vert_xor_area)
-
-    asymmetry_score = (hori_asymmetry_pxls + vert_asymmetry_pxls) / (total_pxls * 2)
-
-    return round(asymmetry_score, 4)
 
 def compactness_score(mask):
     '''Computes a compactness score for the given mask.
@@ -142,43 +111,4 @@ def get_compactness(mask):
 
     return perimeter**2 / (4 * np.pi * area)
 
-def mean_asymmetry(mask, rotations = 30):
-    '''Return mean asymmetry score from mask.
-    Optional argument (defualt 30) rotations decides amount of rotations in asymmetry calculation
 
-    Args:
-        mask (numpy.ndarray): mask to compute asymmetry score for
-        rotations (int, optional): amount of rotations (default 30)
-
-    Returns:
-        mean_score (float): mean asymmetry score.
-    '''
-    asymmetry_scores = rotation_asymmetry(mask, rotations)
-    mean_score = sum(asymmetry_scores.values()) / len(asymmetry_scores)
-
-    return mean_score
-
-def rotation_asymmetry(mask, n: int):
-    '''Rotate mask n times and calculate asymmetry score for each iteration.
-    Rotates n times between 0 and 90 degrees, as 90 degree rotations do not change the
-    asymmetry score, i.e., a 30 degree rotation is the same as a 120 degree rotation.
-
-    Args:
-        mask (numpy.ndarray): input mask
-        n (int): amount of rotations
-
-    Returns:
-        asymmetry_scores (dict): dict of asymmetry scores calculated from each rotation.
-    '''
-    asymmetry_scores = {}
-
-    for i in range(n):
-
-        degrees = 90 * i / n
-
-        rotated_mask = rotate(mask, degrees)
-        cutted_mask = cut_mask(rotated_mask)
-
-        asymmetry_scores[degrees] = asymmetry(cutted_mask)
-
-    return asymmetry_scores
