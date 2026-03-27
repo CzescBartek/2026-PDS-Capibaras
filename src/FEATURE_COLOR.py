@@ -1,20 +1,15 @@
 import cv2
 import numpy as np
-from math import sqrt, floor, ceil, nan, pi
+from math import nan
 from skimage import color, exposure
 from skimage.color import rgb2gray
 from skimage.feature import blob_log
 from skimage.filters import threshold_otsu
-from skimage.measure import label, regionprops
+from skimage.measure import label
 from skimage.transform import resize
-from skimage.transform import rotate
-from skimage import morphology
-from sklearn.cluster import KMeans
 from skimage.segmentation import slic
 from skimage.color import rgb2hsv
-from scipy.stats import circmean, circvar, circstd
 from statistics import variance, stdev
-from scipy.spatial import ConvexHull
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
