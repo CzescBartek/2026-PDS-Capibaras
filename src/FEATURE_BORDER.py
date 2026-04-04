@@ -54,7 +54,8 @@ def compactness_score(mask):
 
      #Area of ground truth
     A = np.sum(mask)
-
+    if A == 0:
+        return np.nan
     #Structural element, that we will use as a "brush" on our mask
     struct_el = morphology.disk(2)
 
@@ -67,7 +68,7 @@ def compactness_score(mask):
     #Length of the perimeter
     l = np.sum(perimeter)
 
-    compactness = (4*pi*A)/(l**2)
+    compactness = (4*np.pi*A)/(l**2)
 
     score = round(1-compactness, 3)
 
@@ -83,7 +84,8 @@ def convexity_score(mask):
     Returns:
         convexity_score (float): Float between 0 and 1 indicating convexity.
     '''
-
+    if np.sum(mask) == 0:
+        return np.nan
     # Get coordinates of all pixels in the lesion mask
     coords = np.transpose(np.nonzero(mask))
 
