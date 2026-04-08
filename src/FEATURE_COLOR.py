@@ -92,13 +92,14 @@ def get_rgb_means(image, mask):
     if image.size == 0 or np.sum(mask) == 0:
         return None
     slic_segments = slic_segmentation(image, mask)
+
     max_segment_id = np.unique(slic_segments)[-1]
 
     rgb_means = []
     for i in range(1, max_segment_id + 1):
 
         #Create masked image where only specific segment is active
-        segment = image.copy()
+        segment = image.copy().astype(np.int16)
         segment[slic_segments != i] = -1
 
         #Get average RGB values from segment

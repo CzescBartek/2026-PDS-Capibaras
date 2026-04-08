@@ -1,19 +1,23 @@
 import cv2
 import numpy as np
+from hair_coverage import hair_coverage
 
-def remove_penmarks(img_org):
+def removeHair_auto(img_org, img_gray):
 
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    lower_blue = np.array([80, 10, 5])    
-    upper_blue = np.array([180, 255, 255])
-    mask = cv2.inRange(hsv, lower_blue, upper_blue)
-    kernel = np.ones((5,5), np.uint8)
-    mask = cv2.dilate(mask, kernel, iterations=2)
+    coverage = hair_coverage(img_gray)
+
+    kernel = cv2.getStructuringElement(1, (12, 12))
+    
+    whitehat = cv2.morphologyEx(img_gray, cv2.MORPH_TOPHAT, kernel)
+    blackhat = cv2.morphologyEx(img_gray, cv2.MORPH_BLACKHAT, kernel)
+    if np.sum(blackhat) > np.sum(whitehat):
+        combined = blackhat
+    else:
+        combined = whitehat
+
+    _, mask = cv2.threshold(combined, 10, 255, cv2.THRESH_BINARY)
     img_out = cv2.inpaint(img_org, mask, 1, cv2.INPAINT_TELEA)
 
     return img_out
-
-
-
 
 
