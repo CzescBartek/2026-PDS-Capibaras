@@ -28,9 +28,8 @@ image_id = df["img_id"].tolist()
 data_path = '../data/'
 imgs_path = "../data/imgs/"
 mask_path= "../data/masks/"
-
 csv_path = '../data/features.csv'
-# CHECKING IF THE FILE EXISTS OR IS IT EMPTY
+
 if os.path.exists(csv_path) and os.path.getsize(csv_path) > 0:
 
     df_features = pd.read_csv(csv_path)
@@ -49,7 +48,7 @@ cancerous = []
 features = []
 for files in image_id:
     value = df.loc[df['img_id'] == files, 'diagnostic'].values
-    
+
     if len(value) > 0 and value[0] in ['BCC', 'MEL', 'SCC']:
         cancerous.append(1)
     else:
@@ -63,7 +62,7 @@ for files in image_id:
     else:
         colors = np.array([0, 0, 0])
 
-    #Border Features Here 
+    img_gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     compactness.append(compactness_score(mask))
     convexity.append(convexity_score(mask))
     r.append(colors[0])
@@ -73,19 +72,16 @@ for files in image_id:
 
 
 df_features['FEATURE_A'] = features
+
 df_features['FEATURE_B_R'] = r
 df_features['FEATURE_B_G'] = g
 df_features['FEATURE_B_B'] = b
-#Here border too
+
 df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
 df_features['FEATURE_BORDER_CONVEXITY'] = convexity
-#Labels
+
 df_features['Cancerous'] = cancerous
 
-# HERE COLORS BUT I STILL KINDA DONT KNOW
-
-
-#SAVING THEM TO THE FILE
 df_features.to_csv(csv_path, index=False)
 
 print('SUCCES!')
