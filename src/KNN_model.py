@@ -20,7 +20,7 @@ x = df[feature_cols]
 y = df[['Cancerous']]
 
 dev_x, test_x, dev_y, test_y = train_test_split(
-    x, y, stratify=y, random_state=0
+    x, y, stratify=y, random_state=0,test_size=0.2,
 )
 
 scaler = StandardScaler()
