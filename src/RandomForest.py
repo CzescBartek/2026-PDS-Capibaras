@@ -14,8 +14,8 @@ for col in df.select_dtypes(include=['object']).columns:
     encoders[col]=le    
 
 df.info()
-X = df.iloc[:,:-1].values
-y = df.iloc[:,-1].values
+X = df.iloc[:,:-2].values
+y = df.iloc[:,-2].values
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
     test_size=0.2,
