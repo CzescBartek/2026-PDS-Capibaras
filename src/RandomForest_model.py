@@ -4,12 +4,13 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score,roc_curve
 from sklearn.preprocessing import LabelEncoder
 import seaborn as sns
 
 df= pd.read_csv('../data/features.csv')
-
+df=df.dropna(axis=0)
+df=df.drop(['img_id'], axis=1)
 
 X = df.iloc[:,:-2].values
 y = df.iloc[:,-2].values
@@ -51,3 +52,11 @@ testprobs = classifier.predict_proba(X_test)[:,1]
 
 print(roc_auc_score(y_test,testprobs))
 print(np.mean(cv_scores))
+
+fpr, tpr, _ = roc_curve(y_test, testprobs)
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc_score(y_test,testprobs):.4f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.legend(loc="lower right")
+
+plt.tight_layout()
+plt.show()
