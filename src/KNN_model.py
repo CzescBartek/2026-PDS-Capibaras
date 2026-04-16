@@ -5,6 +5,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import roc_auc_score, confusion_matrix, ConfusionMatrixDisplay, roc_curve
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import StandardScaler
+import joblib
+
 
 data = pd.read_csv('../data/features.csv')
 df = data.drop(['img_id'], axis=1)
@@ -70,10 +72,12 @@ plt.ylabel('ROC AUC Score')
 plt.title('Cross-Validation Results')
 plt.legend()
 plt.grid(True)
+plt.savefig('../result/figures/KNN_Cross_Validation', dpi=300, bbox_inches='tight') 
 plt.show()
+plt.close() 
 
 test_preds = final_model.predict(test_x_scaled)
-
+joblib.dump(final_model, '../result/models/KNN_Model.pkl')
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
 cm = confusion_matrix(test_y, test_preds)
@@ -93,4 +97,6 @@ ax2.legend(loc="lower right")
 ax2.grid(True)
 
 plt.tight_layout()
+plt.savefig('../result/figures/KNN_CM_ROC', dpi=300, bbox_inches='tight') 
 plt.show()
+plt.close() 

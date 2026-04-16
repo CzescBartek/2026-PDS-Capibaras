@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score,roc_curve
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score,roc_curve, ConfusionMatrixDisplay
 from sklearn.preprocessing import LabelEncoder
-import seaborn as sns
+import joblib
 
 df= pd.read_csv('../data/features.csv')
 df=df.dropna(axis=0)
@@ -32,31 +32,39 @@ classifier=RandomForestClassifier(
 classifier.fit(X_train, y_train)
 print("Out-of-Bag Score:", classifier.oob_score_)
 
-y_pred = classifier.predict(X_test)
-
-
-
-print("Accuracy:", accuracy_score(y_test,y_pred))
-print("\nConfusion Matrix:\n",confusion_matrix(y_test,y_pred))
-print("\nClassification Report:\n",classification_report(y_test,y_pred))
-sns.heatmap(confusion_matrix(y_test,y_pred), annot=True,fmt='d')
-plt.title("Confusion Matrix")
-plt.show()
 
 
 kfold= KFold(n_splits=5, random_state=1907,shuffle=True)
-
 cv_scores=cross_val_score(classifier, X_train,np.ravel(y_train),cv=5,scoring='roc_auc')
-
-testprobs = classifier.predict_proba(X_test)[:,1]
-
-print(roc_auc_score(y_test,testprobs))
 print(np.mean(cv_scores))
 
+
+joblib.dump(classifier, '../result/models/RandomForest_Model.pkl')
+
+y_pred = classifier.predict(X_test)
+testprobs = classifier.predict_proba(X_test)[:,1]
+final_auc = roc_auc_score(y_test, testprobs)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+cm = confusion_matrix(y_test,y_pred)
+disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+disp.plot(ax=ax1, cmap='Blues')
+ax1.set_title('Confusion Matrix')
+
+
 fpr, tpr, _ = roc_curve(y_test, testprobs)
-plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {roc_auc_score(y_test,testprobs):.4f})')
-plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-plt.legend(loc="lower right")
+ax2.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (area = {final_auc:.4f})')
+ax2.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+ax2.set_xlim([0.0, 1.0])
+ax2.set_ylim([0.0, 1.05])
+ax2.set_xlabel('False Positive Rate')
+ax2.set_ylabel('True Positive Rate')
+ax2.set_title('Receiver Operating Characteristic (ROC)')
+ax2.legend(loc="lower right")
+ax2.grid(True)
 
 plt.tight_layout()
+
+plt.savefig('../result/figures/RandomForest_CM_ROC', dpi=300, bbox_inches='tight') 
 plt.show()
+plt.close() 
