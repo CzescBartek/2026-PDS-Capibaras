@@ -14,11 +14,14 @@ df=df.drop(['img_id'], axis=1)
 
 X = df.iloc[:,:-2].values
 y = df.iloc[:,-2].values
+
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
     test_size=0.2,
     random_state=1907
 )
+feature_names = df.iloc[:,:-2].columns.tolist()
 scaler = StandardScaler()
 X_train=scaler.fit_transform(X_train)
 X_test=scaler.transform(X_test)
@@ -41,6 +44,11 @@ print(np.mean(cv_scores))
 
 joblib.dump(classifier, '../result/models/RandomForest_Model.pkl')
 
+
+
+
+joblib.dump(X_train, '../result/models/X_test.pkl') 
+joblib.dump(feature_names, '../result/models/feature_names.pkl') 
 y_pred = classifier.predict(X_test)
 testprobs = classifier.predict_proba(X_test)[:,1]
 final_auc = roc_auc_score(y_test, testprobs)
@@ -65,6 +73,6 @@ ax2.grid(True)
 
 plt.tight_layout()
 
-plt.savefig('../result/figures/RandomForest_CM_ROC', dpi=300, bbox_inches='tight') 
+plt.savefig('../result/figures/RandomForest_CM_ROC_without_last', dpi=300, bbox_inches='tight') 
 plt.show()
 plt.close() 
