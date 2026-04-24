@@ -53,24 +53,27 @@ def compactness_score(mask):
     '''
 
      #Area of ground truth
-    A = np.sum(mask)
+    mask = mask.astype(float)
+    A = np.sum(mask>0)
+    if mask is None:
+        return np.nan
     if A == 0:
         return np.nan
     #Structural element, that we will use as a "brush" on our mask
-    struct_el = morphology.disk(2)
+    struct_el = morphology.disk(1)
 
     # Use this "brush" to erode the image - eat away at the borders
     mask_eroded = morphology.binary_erosion(mask, struct_el)
 
     #Finding the perimeter of the ground truth
-    perimeter = mask ^ mask_eroded
+    perimeter = mask - mask_eroded
 
     #Length of the perimeter
     l = np.sum(perimeter)
 
     compactness = (4*np.pi*A)/(l**2)
 
-    score = round(1-compactness, 3)
+    score = 1 - compactness
 
     return score
 
@@ -103,14 +106,5 @@ def convexity_score(mask):
 
     return convexity #round(1-convexity, 3)
 
-def get_compactness(mask):
-    # mask = color.rgb2gray(mask)
-    area = np.sum(mask)
-
-    struct_el = morphology.disk(3)
-    mask_eroded = morphology.binary_erosion(mask, struct_el)
-    perimeter = np.sum(mask - mask_eroded)
-
-    return perimeter**2 / (4 * np.pi * area)
 
 

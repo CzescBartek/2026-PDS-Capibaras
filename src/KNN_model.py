@@ -97,6 +97,6 @@ ax2.legend(loc="lower right")
 ax2.grid(True)
 
 plt.tight_layout()
-plt.savefig('../result/figures/KNN_CM_ROC', dpi=300, bbox_inches='tight') 
+plt.savefig('../result/figures/KNN_CM_ROC_withoutlast', dpi=300, bbox_inches='tight') 
 plt.show()
 plt.close() 
