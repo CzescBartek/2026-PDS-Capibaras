@@ -6,7 +6,7 @@ from FEATURE_A import asymmetry, midpointGroup9
 import os
 from FEATURE_COLOR import slic_segmentation, get_rgb_means, load_image_and_mask
 from FEATURE_BORDER import compactness_score, convexity_score
-# from FEATURE_LBP import result_LBP
+from FEATURE_LBP import lbp
 from hair_coverage import hair_coverage
 from hair_remove import removeHair_auto
 from penmark_remove import remove_penmarks
@@ -84,15 +84,15 @@ for files in image_id:
 
     # features.append(asymmetry(mask))
     compactness.append(compactness_score(mask))
-    print(f'Compactness: {compactness_score(mask)}')
     # convexity.append(convexity_score(mask))
     # r.append(colors[0])
     # g.append(colors[1])
     # b.append(colors[2])
     # hair.append(hair_coverage(img_gray2))
-    # Lbp = result_LBP(im)
+    # Lbp = lbp(img_gray2)
     # Lbp_list.append(Lbp)
 
+    print(compactness_score(mask))
     print(f'{i}. ', end='')
     print(files)
     i+=1
@@ -109,8 +109,11 @@ df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
 
 # df_features['Hair'] = hair
 
+# lbp_cols = [f'LBP_{i}' for i in range(len(Lbp_list[0]))]
+# df_lbp = pd.DataFrame(Lbp_list, columns=lbp_cols)
+# df_features = pd.concat([df_features.reset_index(drop=True), df_lbp], axis=1)
 
-# df_features['LBP'] = Lbp_list
+
 df_features.to_csv(csv_path, index=False)
 
 print('SUCCES!')

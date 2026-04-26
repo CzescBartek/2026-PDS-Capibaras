@@ -12,13 +12,7 @@ data = pd.read_csv('../data/features.csv')
 df = data.drop(['img_id'], axis=1)
 df = df.dropna(axis=0)
 
-feature_cols = [
-    'FEATURE_A',
-    'FEATURE_B_R', 'FEATURE_B_G', 'FEATURE_B_B',
-    'FEATURE_BORDER_COMPACTNESS', 'FEATURE_BORDER_CONVEXITY', 'Hair'
-]
-
-x = df[feature_cols]
+x = df.drop(['Cancerous'], axis=1)
 y = df[['Cancerous']]
 
 dev_x, test_x, dev_y, test_y = train_test_split(
@@ -97,6 +91,6 @@ ax2.legend(loc="lower right")
 ax2.grid(True)
 
 plt.tight_layout()
-plt.savefig('../result/figures/KNN_CM_ROC_withoutlast', dpi=300, bbox_inches='tight') 
+plt.savefig('../result/figures/KNN_CM_ROC_with', dpi=300, bbox_inches='tight') 
 plt.show()
 plt.close() 

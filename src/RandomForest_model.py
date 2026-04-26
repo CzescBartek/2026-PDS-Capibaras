@@ -12,8 +12,8 @@ df= pd.read_csv('../data/features.csv')
 df=df.dropna(axis=0)
 df=df.drop(['img_id'], axis=1)
 
-X = df.iloc[:,:-2].values
-y = df.iloc[:,-2].values
+X = df.drop(['Cancerous'], axis=1).values
+y = df['Cancerous'].values
 
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -21,7 +21,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     test_size=0.2,
     random_state=1907
 )
-feature_names = df.iloc[:,:-2].columns.tolist()
+feature_names = df.drop(['Cancerous'], axis=1).columns.tolist()
 scaler = StandardScaler()
 X_train=scaler.fit_transform(X_train)
 X_test=scaler.transform(X_test)
@@ -73,6 +73,6 @@ ax2.grid(True)
 
 plt.tight_layout()
 
-plt.savefig('../result/figures/RandomForest_CM_ROC_without_last', dpi=300, bbox_inches='tight') 
+plt.savefig('../result/figures/RandomForest_CM_ROC_with', dpi=300, bbox_inches='tight') 
 plt.show()
 plt.close() 
