@@ -20,8 +20,7 @@ def run_shap_analysis(model_path, X_test_path, feature_names_path):
 
     X_test_df = pd.DataFrame(X_test, columns=feature_names)
 
-    print("Sampling 500 rows")
-    X_sample = X_test_df.sample(500, random_state=42)
+    X_sample = X_test_df.sample(420, random_state=42)
 
     explainer = shap.TreeExplainer(model)
     

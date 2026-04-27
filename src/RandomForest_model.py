@@ -12,8 +12,8 @@ df= pd.read_csv('../data/features.csv')
 df=df.dropna(axis=0)
 df=df.drop(['img_id'], axis=1)
 
-X = df.drop(['Cancerous'], axis=1).values
-y = df['Cancerous'].values
+X = df.drop(['Cancerous'], axis=1)
+y = df['Cancerous']
 
 
 X_train, X_test, y_train, y_test = train_test_split(
@@ -47,8 +47,9 @@ joblib.dump(classifier, '../result/models/RandomForest_Model.pkl')
 
 
 
-joblib.dump(X_train, '../result/models/X_test.pkl') 
+joblib.dump(X_test, '../result/models/X_test.pkl') 
 joblib.dump(feature_names, '../result/models/feature_names.pkl') 
+joblib.dump(y_test, '../result/models/Y_test.pkl')
 y_pred = classifier.predict(X_test)
 testprobs = classifier.predict_proba(X_test)[:,1]
 final_auc = roc_auc_score(y_test, testprobs)
