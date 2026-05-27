@@ -20,7 +20,7 @@ def run_shap_analysis(model_path, X_test_path, feature_names_path):
 
     X_test_df = pd.DataFrame(X_test, columns=feature_names)
 
-    X_sample = X_test_df.sample(420, random_state=42)
+    X_sample = X_test_df
 
     explainer = shap.TreeExplainer(model)
     
@@ -38,7 +38,7 @@ def run_shap_analysis(model_path, X_test_path, feature_names_path):
     plt.figure(figsize=(12, 8))
     shap.summary_plot(shap_values_to_plot, X_sample, show=False)
 
-    shap_plot_path = os.path.join(plot_dir, 'shap_summary_without_one.png')
+    shap_plot_path = os.path.join(plot_dir, 'shap_summary.png')
     plt.savefig(shap_plot_path, dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()
@@ -46,7 +46,7 @@ def run_shap_analysis(model_path, X_test_path, feature_names_path):
 
     print("Generating Waterfall plot...")
     
-    example_index = 1
+    example_index = 200
     
 
     exp_for_one_case = shap.Explanation(
@@ -58,14 +58,16 @@ def run_shap_analysis(model_path, X_test_path, feature_names_path):
 
     plt.figure(figsize=(10, 6))
     shap.plots.waterfall(exp_for_one_case, show=False)
-    plt.title(f"Why transactiona {X_sample.index[example_index]} was graded like that?")
+    plt.title(f"Why image {X_sample.index[example_index]} was graded like that?")
     plt.tight_layout()
 
 
-    shap_bar_path = os.path.join(plot_dir, 'shap_bar_without_one.png')
+    shap_bar_path = os.path.join(plot_dir, 'shap_bar.png')
     plt.savefig(shap_bar_path, dpi=300, bbox_inches='tight')
     plt.show()
     plt.close()
+
+
 
 if __name__ == "__main__":
 

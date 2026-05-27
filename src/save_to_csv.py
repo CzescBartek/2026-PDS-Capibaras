@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from math import ceil, floor, pi
 from FEATURE_A import asymmetry, midpointGroup9
 import os
-from FEATURE_COLOR import slic_segmentation, get_rgb_means, load_image_and_mask
+from FEATURE_COLOR import slic_segmentation, get_hsv_means, load_image_and_mask, hsv_var
 from FEATURE_BORDER import compactness_score, convexity_score
 from FEATURE_LBP import lbp
 from hair_coverage import hair_coverage
@@ -24,6 +24,7 @@ from skimage.color import rgb2hsv
 from statistics import variance, stdev
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.stats import circmean, circvar, circstd
 import os
 import cv2
 
@@ -60,7 +61,7 @@ for files in image_id:
         cancerous.append(1)
     else:
         cancerous.append(0)
-    #This for color
+
     im, mask = load_image_and_mask(files, data_path=data_path)
 
     path = '../data/imgs/' + files
@@ -76,42 +77,32 @@ for files in image_id:
         mask_uint8 = mask.astype(np.uint8) * 255
         mask = cv2.resize(mask_uint8, (im.shape[1], im.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-    # means = get_rgb_means(im, mask)
-    # if means is not None and len(means) > 0:
-    #     colors = np.mean(means, axis=0)
-    # else:
-    #     colors = np.array([0, 0, 0])
 
-    # features.append(asymmetry(mask))
+
+    features.append(asymmetry(mask))
     compactness.append(compactness_score(mask))
-    # convexity.append(convexity_score(mask))
-    # r.append(colors[0])
-    # g.append(colors[1])
-    # b.append(colors[2])
-    # hair.append(hair_coverage(img_gray2))
-    # Lbp = lbp(img_gray2)
-    # Lbp_list.append(Lbp)
-
-    print(compactness_score(mask))
+    convexity.append(convexity_score(mask))
+    hair.append(hair_coverage(img_gray2))
+    Lbp = lbp(img_gray2)
+    Lbp_list.append(Lbp)
+    h,s,v = hsv_var(im, mask)
     print(f'{i}. ', end='')
     print(files)
     i+=1
     
 
-# df_features['FEATURE_A'] = features
-# df_features['FEATURE_B_R'] = r
-# df_features['FEATURE_B_G'] = g
-# df_features['FEATURE_B_B'] = b
+df_features['FEATURE_A'] = features
+df_features['FEATURE_B_H'] = h
+df_features['FEATURE_B_S'] = s
+df_features['FEATURE_B_V'] = v
 df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
-# df_features['FEATURE_BORDER_CONVEXITY'] = convexity
-# df_features['Cancerous'] = cancerous
+df_features['FEATURE_BORDER_CONVEXITY'] = convexity
+df_features['Cancerous'] = cancerous
+df_features['Hair'] = hair
 
-
-# df_features['Hair'] = hair
-
-# lbp_cols = [f'LBP_{i}' for i in range(len(Lbp_list[0]))]
-# df_lbp = pd.DataFrame(Lbp_list, columns=lbp_cols)
-# df_features = pd.concat([df_features.reset_index(drop=True), df_lbp], axis=1)
+lbp_cols = [f'LBP_{i}' for i in range(len(Lbp_list[0]))]
+df_lbp = pd.DataFrame(Lbp_list, columns=lbp_cols)
+df_features = pd.concat([df_features.reset_index(drop=True), df_lbp], axis=1)
 
 
 df_features.to_csv(csv_path, index=False)

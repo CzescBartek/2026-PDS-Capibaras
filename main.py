@@ -1,37 +1,34 @@
-def main(features_path, prediction_results_path, model_path, load_model):
-    """
-    Docstring for main
-    
-    :param features_path: Path to the features csv used as input to the model (e.g. ./data/features.csv).
-    :param prediction_results_path: Path to save the output predictions of the model (e.g. ./result/predictions/predictions_MODEL.csv).
-    :param model_path: Path to save or load the trained model (e.g. ./result/predictions/predictions_MODEL.csv).
-    :param load_model: Boolean to train the model and save it to model_path if False, load it from model_path if True. 
-    """
-    
-    # load dataset CSV file
-
-    # split the dataset into training and testing sets.
+from src.RandomForest_model import RandomForest_model
+from src.shap_analysis import run_shap_analysis
+from src.evaluate_model import evaluate_model
+def main(features_path, prediction_results_path, model_path, load_model, X_test_path, feature_names_path):
 
     if load_model:
-        # load the model
-        pass
+        model = joblib.load(model_path)
+        model = joblib.load(feature_names_path)
+        y_test = joblib.load('./result/models/Y_test.pkl')
+        X_test_scaled = joblib.load('./result/models/X_test.pkl')
+
+        
+        evaluate_model(model, X_test_scaled, y_test, features_names)
+        run_shap_analysis(model_path, X_test_path, feature_names_path)
+
     else:
-        # train the classifier (using logistic regression as an example)
-
-        # save the model.
-        pass
-
-    # test the classifier.
+        RandomForest_model(features_path)
+        run_shap_analysis(model_path, X_test_path, feature_names_path)
 
 
-    # write test results to CSV.
 
 
 
 if __name__ == "__main__":
     features_path = "./data/features.csv"
-    prediction_results_path = "./result/predictions/predictions_MODEL.csv"
-    model_path = "./result/predictions/predictions_MODEL.csv"
+    prediction_results_path = "./result/predictions/predictions.csv"
+    model_path = "./result/models/RandomForest.pkl"
+    X_test_path= './result/models/X_test.pkl'
+    feature_names_path = './result/models/feature_names.pkl'
     load_model = False
 
-    main(features_path, prediction_results_path,model_path,load_model)
+        
+        
+    main(features_path, prediction_results_path,model_path,load_model, feature_names_path, X_test_path)
