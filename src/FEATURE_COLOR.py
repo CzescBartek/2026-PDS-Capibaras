@@ -78,9 +78,8 @@ def slic_segmentation(image, mask, n_segments = 50, compactness = 0.1):
 
     return slic_segments
 
-
-def get_rgb_means(image, mask):
-    '''Get mean RGB values for each segment in a SLIC segmented image.
+def get_hsv_means(image, mask):
+    '''Get mean HSV values for each segment in a SLIC segmented image.
 
     Args:
         image (numpy.ndarray): original image
@@ -89,24 +88,66 @@ def get_rgb_means(image, mask):
     Returns:
         hsv_means (list): HSV mean values for each segment.
     '''
-
-    if image.size == 0 or np.sum(mask) == 0:
-        return None
     slic_segments = slic_segmentation(image, mask)
+    hsv_image = rgb2hsv(image)
 
     max_segment_id = np.unique(slic_segments)[-1]
 
     hsv_means = []
     for i in range(1, max_segment_id + 1):
 
-        #Create masked image where only specific segment is active
-        segment = image.copy().astype(np.int16)
-        segment[slic_segments != i] = -1
+        # Create masked image where only specific segment is active
+        segment = hsv_image.copy()
+        segment[slic_segments != i] = nan
 
-        #Get average RGB values from segment
-        rgb_mean = np.mean(segment, axis = (0, 1), where = (segment != -1))
+        #Get average HSV values from segment
+        hue_mean = circmean(segment[:, :, 0], high=1, low=0, nan_policy='omit') # Compute circular hue mean
+        sat_mean = np.mean(segment[:, :, 1], where = (slic_segments == i)) # Compute saturation mean
+        val_mean = np.mean(segment[:, :, 2], where = (slic_segments == i)) # Compute value mean
 
-        rgb_means.append(rgb_mean)
+        hsv_mean = np.asarray([hue_mean, sat_mean, val_mean])
 
-    return rgb_means
+        hsv_means.append(hsv_mean)
 
+    return hsv_means
+
+def hsv_var(image, mask):
+    '''Get variance of HSV means for each segment in
+    SLIC segmentation in hue, saturation and value channels
+
+    Args:
+        image (numpy.ndarray): image to compute color variance for
+        slic_segments (numpy.ndarray): array containing SLIC segmentation
+
+    Returns:
+        hue_var (float): variance in hue channel segment means
+        sat_var (float): variance in saturation channel segment means
+        val_var (float): variance in value channel segment means.
+    '''
+    if np.sum(mask) == 0:
+        return np.nan, np.nan, np.nan
+
+    slic_segments = slic_segmentation(image,mask)
+    # If there is only 1 slic segment, return (0, 0, 0)
+    if len(np.unique(slic_segments)) == 2: # Use 2 since slic_segments also has 0 marking for area outside mask
+        return 0, 0, 0
+
+    hsv_means = get_hsv_means(image, slic_segments)
+    n = len(hsv_means) # Amount of segments, used later to compute variance
+
+    # Seperate and collect channel means together in lists
+    hue = []
+    sat = []
+    val = []
+    for hsv_mean in hsv_means:
+        hue.append(hsv_mean[0])
+        sat.append(hsv_mean[1])
+        val.append(hsv_mean[2])
+
+    # Compute variance for each channel seperately
+    hue_var = circvar(hue, high=1, low=0)
+    sat_var = variance(sat, sum(sat)/n)
+    val_var = variance(val, sum(val)/n)
+
+
+    return hue_var, sat_var, val_var
