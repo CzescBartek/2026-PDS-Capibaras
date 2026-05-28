@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 # 1. Setup
 df = pd.read_csv('../data/features.csv')
-features_to_plot = ["FEATURE_A", "FEATURE_BORDER_COMPACTNESS", "FEATURE_BORDER_CONVEXITY"]
+features_to_plot = ["FEATURE_A", "FEATURE_BORDER_COMPACTNESS", "FEATURE_BORDER_CONVEXITY", 'FEATURE_B_H']
 output_folder = "../result/figures"
 
 

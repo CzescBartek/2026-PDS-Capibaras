@@ -5,7 +5,7 @@ from skimage import color, exposure
 from skimage.color import rgb2gray
 from skimage.feature import blob_log
 from skimage.filters import threshold_otsu
-from skimage.measure import label, regionprops
+from skimage.measure import label, regionprops, perimeter
 from skimage.transform import resize
 from skimage.transform import rotate
 from skimage import morphology
@@ -39,43 +39,22 @@ def cut_mask(mask):
     return cut_mask_
 
 
-
 def compactness_score(mask):
-    '''Computes a compactness score for the given mask.
-    The score is based of the Polsby-Popper measure.
-    The score falls between the value 0 and 1. Scores closer to 1 indicates a more compact mask.
-
-    Args:
-        mask (numpy.ndarray): input masked image
-
-    Returns:
-        compactness_score (float): Float between 0 and 1 indicating compactness.
-    '''
-
-     #Area of ground truth
-    mask = mask.astype(float)
-    A = np.sum(mask>0)
-    if mask is None:
-        return np.nan
+    # 1. Area is simple pixel count
+    A = np.sum(mask > 0)
+    
     if A == 0:
-        return np.nan
-    #Structural element, that we will use as a "brush" on our mask
-    struct_el = morphology.disk(1)
+        return 0.0
 
-    # Use this "brush" to erode the image - eat away at the borders
-    mask_eroded = morphology.binary_erosion(mask, struct_el)
+    P = perimeter(mask, neighborhood=4)
+    
+    if P == 0:
+        return 0.0
 
-    #Finding the perimeter of the ground truth
-    perimeter = mask - mask_eroded
-
-    #Length of the perimeter
-    l = np.sum(perimeter)
-
-    compactness = (4*np.pi*A)/(l**2)
-
-    score = 1 - compactness
-
-    return score
+    # 3. Standard Polsby-Popper Formula
+    compactness = (4 * np.pi * A) / (P**2)
+    
+    return min(float(compactness), 1.0)
 
 def convexity_score(mask):
     '''Calculate convexity score between 0 and 1,
@@ -87,8 +66,9 @@ def convexity_score(mask):
     Returns:
         convexity_score (float): Float between 0 and 1 indicating convexity.
     '''
+
     if np.sum(mask) == 0:
-        return np.nan
+        return None
     # Get coordinates of all pixels in the lesion mask
     coords = np.transpose(np.nonzero(mask))
 
@@ -104,7 +84,5 @@ def convexity_score(mask):
     # Compute convexity as ratio of lesion area to convex hull
     convexity = lesion_area / convex_hull_area
 
-    return convexity #round(1-convexity, 3)
-
-
+    return round(1-convexity, 3)
 

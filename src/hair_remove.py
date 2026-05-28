@@ -14,7 +14,7 @@ def removeHair_auto(img_org, img_gray):
     elif coverage >= 0.035:
         kernel_size = (25,25)
 
-        
+
     kernel = cv2.getStructuringElement(1, kernel_size)
     
     whitehat = cv2.morphologyEx(img_gray, cv2.MORPH_TOPHAT, kernel)

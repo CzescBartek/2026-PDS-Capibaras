@@ -83,7 +83,7 @@ def RandomForest_model(features_path):
     classifier = RandomForestClassifier(
         n_estimators=best_n_from_graph,
         max_depth=best_d_from_graph,
-        random_state=1907,
+        random_state=0,
         oob_score=True,
         n_jobs=-1
     )
