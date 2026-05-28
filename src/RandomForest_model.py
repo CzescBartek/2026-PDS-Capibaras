@@ -1,15 +1,20 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import joblib
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import confusion_matrix, roc_auc_score, roc_curve, ConfusionMatrixDisplay
-import joblib
+from sklearn.metrics import (confusion_matrix, roc_auc_score, roc_curve, 
+                             ConfusionMatrixDisplay, accuracy_score, 
+                             recall_score, precision_score, f1_score)
 
-def RandomForest_model(features_path):
+def RandomForest_model(features_path, prediction_results_path, model_path, feature_names_path, X_test_path, y_test_path):
+    # 1. Data Loading and Preparation
     df = pd.read_csv(features_path).dropna(axis=0)
-    df = df.drop(['img_id'], axis=1)
+    if 'img_id' in df.columns:
+        df = df.drop(['img_id'], axis=1)
 
     X = df.drop(['Cancerous'], axis=1)
     y = df['Cancerous']
@@ -23,8 +28,14 @@ def RandomForest_model(features_path):
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
+    # Prepare directories for results based on provided paths
+    figures_dir = os.path.join(os.path.dirname(model_path), '../figures')
+    os.makedirs(figures_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(prediction_results_path), exist_ok=True)
+
     kfold = KFold(n_splits=5, random_state=1907, shuffle=True)
 
+    # 2. Hyperparameter Tuning: Max Depth
     base_n = 100
     depth_range = range(1, 21)
     depth_means = []
@@ -49,9 +60,10 @@ def RandomForest_model(features_path):
     plt.xlabel('max_depth')
     plt.ylabel('Mean ROC AUC')
     plt.grid(True)
-    plt.savefig('../result/figures/CV_Max_Depth_Plot.png')
+    plt.savefig(os.path.join(figures_dir, 'CV_Max_Depth_Plot.png'))
     plt.show()
 
+    # 3. Hyperparameter Tuning: N Estimators
     n_test_range = [10, 50, 100, 200, 300, 400, 500, 600]
     n_means = []
     n_stds = []
@@ -75,11 +87,11 @@ def RandomForest_model(features_path):
     plt.xlabel('n_estimators')
     plt.ylabel('Mean ROC AUC')
     plt.grid(True)
-    plt.savefig('../result/figures/CV_N_Estimators_Plot.png')
+    plt.savefig(os.path.join(figures_dir, 'CV_N_Estimators_Plot.png'))
     plt.show()
 
+    # 4. Final Model Training
     print(f"Final training: n_estimators={best_n_from_graph}, max_depth={best_d_from_graph}")
-    
     classifier = RandomForestClassifier(
         n_estimators=best_n_from_graph,
         max_depth=best_d_from_graph,
@@ -87,18 +99,22 @@ def RandomForest_model(features_path):
         oob_score=True,
         n_jobs=-1
     )
-
     classifier.fit(X_train_scaled, y_train)
 
-    joblib.dump(classifier, '../result/models/RandomForest_Model.pkl')
-    joblib.dump(X_test_scaled, '../result/models/X_test.pkl') 
-    joblib.dump(feature_names, '../result/models/feature_names.pkl') 
-    joblib.dump(y_test, '../result/models/Y_test.pkl')
+    # 5. Saving Artifacts using provided variable paths
+    joblib.dump(classifier, model_path)
+    joblib.dump(X_test_scaled, X_test_path) 
+    joblib.dump(feature_names, feature_names_path) 
+    joblib.dump(y_test, y_test_path)
 
+    # 6. Evaluation
     y_pred = classifier.predict(X_test_scaled)
     testprobs = classifier.predict_proba(X_test_scaled)[:, 1]
-    final_auc = roc_auc_score(y_test, testprobs)
+    
+    # Save predictions to CSV
+    pd.DataFrame({'Actual': y_test, 'Predicted': y_pred, 'Probability': testprobs}).to_csv(prediction_results_path, index=False)
 
+    final_auc = roc_auc_score(y_test, testprobs)
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
     cm = confusion_matrix(y_test, y_pred)
@@ -116,8 +132,31 @@ def RandomForest_model(features_path):
     ax2.grid(True)
 
     plt.tight_layout()
-    plt.savefig('../result/figures/RandomForest_CM_ROC.png', dpi=300) 
+    plt.savefig(os.path.join(figures_dir, 'RandomForest_CM_ROC.png'), dpi=300) 
     plt.show()
+    
+    # Final Metrics Output
+    acc = accuracy_score(y_test, y_pred)
+    rec = recall_score(y_test, y_pred)
+    prec = precision_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+
+    print("\n" + "—"*30)
+    print(f"• Accuracy:  {acc:.4f}")
+    print(f"• Recall:    {rec:.4f}")
+    print(f"• AUC:       {final_auc:.4f}")
+    print(f"• Precision: {prec:.4f}")
+    print(f"• F1 Score:  {f1:.4f}")
+    print("—"*30)
 
 if __name__ == "__main__":
-    RandomForest_model('../data/features.csv')
+    RandomForest_model(
+        features_path = "../data/features.csv",
+        prediction_results_path = "../result/predictions/predictions.csv",
+        model_path = "../result/models/RandomForest_Model.pkl",
+        feature_names_path = '../result/models/feature_names.pkl',
+        X_test_path = '../result/models/X_test.pkl',
+        y_test_path = '../result/models/Y_test.pkl',
+
+
+    )
