@@ -78,34 +78,34 @@ for files in image_id:
     #     mask_uint8 = mask.astype(np.uint8) * 255
     #     mask = cv2.resize(mask_uint8, (im.shape[1], im.shape[0]), interpolation=cv2.INTER_NEAREST)
 
-    # features.append(asymmetry(mask))
+    features.append(asymmetry(mask))
     compactness.append(compactness_score(mask))
-    # convexity.append(convexity_score(mask))
-    # hair.append(hair_coverage(img_gray2))
-    # Lbp = lbp(img_gray2)
-    # Lbp_list.append(Lbp)
+    convexity.append(convexity_score(mask))
+    hair.append(hair_coverage(img_gray2))
+    Lbp = lbp(img_gray2)
+    Lbp_list.append(Lbp)
 
-    # h1, s1, v1 = hsv_var(im, mask)
-    # h.append(h1)
-    # s.append(s1)
-    # v.append(v1)
+    h1, s1, v1 = hsv_var(im, mask)
+    h.append(h1)
+    s.append(s1)
+    v.append(v1)
     print(f'{i}. ', end='')
     print(files)
     i+=1
     
 
-# df_features['FEATURE_A'] = features
-# df_features['FEATURE_B_H'] = h
-# df_features['FEATURE_B_S'] = s
-# df_features['FEATURE_B_V'] = v
+df_features['FEATURE_A'] = features
+df_features['FEATURE_B_H'] = h
+df_features['FEATURE_B_S'] = s
+df_features['FEATURE_B_V'] = v
 df_features['FEATURE_BORDER_COMPACTNESS'] = compactness
-# df_features['FEATURE_BORDER_CONVEXITY'] = convexity
-# df_features['Cancerous'] = cancerous
-# df_features['Hair'] = hair
+df_features['FEATURE_BORDER_CONVEXITY'] = convexity
+df_features['Cancerous'] = cancerous
+df_features['Hair'] = hair
 
-# lbp_cols = [f'LBP_{i}' for i in range(len(Lbp_list[0]))]
-# df_lbp = pd.DataFrame(Lbp_list, columns=lbp_cols)
-# df_features = pd.concat([df_features.reset_index(drop=True), df_lbp], axis=1)
+lbp_cols = [f'LBP_{i}' for i in range(len(Lbp_list[0]))]
+df_lbp = pd.DataFrame(Lbp_list, columns=lbp_cols)
+df_features = pd.concat([df_features.reset_index(drop=True), df_lbp], axis=1)
 
 
 df_features.to_csv(csv_path, index=False)
